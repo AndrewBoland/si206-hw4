@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 ## Write the Python code to do so here.
 
 html_text = requests.get("http://www.nytimes.com").text
-fileref = open("nytimes.html", "w")
+fileref = open("nytimes_data.html", "w")
 fileref.write(html_text)
 fileref.close()
 
@@ -45,17 +45,25 @@ fileref.close()
 ## HINT: Remember that you'll need to open the file you created in Part 1, read the contets into one big string, and make a BeautifulSoup object out of that string!
 ## NOTE that the provided link does not include saving the online data in a file as part of the process. But it still provides very useful hints/tricks about how to look for and identify the headlines on the NY Times page.
 
-fileref = open("nytimes.html", "r")
+fileref = open("nytimes_data.html", "r")
 text = fileref.read()
 soup = BeautifulSoup(text, "html.parser")
 nytimes_headlines = []
-for index, story_heading in enumerate(soup.find_all(class_="story-heading")):
-    if index == 10:
+num_headlines = 0
+for story_heading in soup.find_all(class_="story-heading"):
+    if num_headlines == 10:
         break
     if story_heading.a:
-        nytimes_headlines.append(story_heading.a.text.replace("\n", " ").strip())
-    else:
-        nytimes_headlines.append(story_heading.contents[0].strip())
+        headline = story_heading.a.text.replace("\n", " ").strip()
+        if headline != '':
+            nytimes_headlines.append(headline)
+            num_headlines += 1
+    #else:
+        #The following is commented because I am assuming these headlines "do not have any text", if they do, just uncomment this and the previous else
+        #headline = story_heading.contents[0].strip()
+        #if headline != '':
+            #nytimes_headlines.append(headline)
+            #num_headlines += 1
 
 fileref.close()
 
@@ -82,6 +90,10 @@ htmldoc = response.text
 soup = BeautifulSoup(htmldoc,"html.parser")
 people = soup.find_all("div",{"class":"views-row"})
 umsi_titles = {}
+for index, person in enumerate(people):
+    name = person.find("div", {"property":"dc:title"}).text
+    title = person.find("div", {"class":"field-name-field-person-titles"}).text
+    umsi_titles[name] = title
 
 ## It may be helpful to translate the following from English to code:
 
